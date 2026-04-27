@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LivroRepositorio implements PortaLivroRepositorio {
+public class LivroRepositorioMemoria implements PortaLivroRepositorio {
     private Map<Long, Livro> livros = new HashMap<>();
 
     @Override

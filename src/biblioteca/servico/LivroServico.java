@@ -1,13 +1,13 @@
 package biblioteca.servico;
 
 import biblioteca.dominio.Livro;
-import biblioteca.infraestrutura.adaptador.LivroRepositorio;
+import biblioteca.porta.saida.PortaLivroRepositorio;
 import java.util.List;
 
 public class LivroServico {
-    private LivroRepositorio livroRepositorio;
+    private PortaLivroRepositorio livroRepositorio;
 
-    public LivroServico(LivroRepositorio livroRepositorio) {
+    public LivroServico(PortaLivroRepositorio livroRepositorio) {
         this.livroRepositorio = livroRepositorio;
     }
 

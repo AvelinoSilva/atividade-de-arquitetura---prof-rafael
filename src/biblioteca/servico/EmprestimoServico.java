@@ -4,22 +4,23 @@ import biblioteca.dominio.Emprestimo;
 import biblioteca.dominio.Livro;
 import biblioteca.dominio.SituacaoEmprestimo;
 import biblioteca.dominio.Usuario;
-import biblioteca.infraestrutura.adaptador.EmprestimoRepositorio;
-import biblioteca.infraestrutura.adaptador.LivroRepositorio;
-import biblioteca.infraestrutura.adaptador.UsuarioRepositorio;
+import biblioteca.porta.entrada.PortaEmprestimo;
+import biblioteca.porta.saida.PortaEmprestimoRepositorio;
+import biblioteca.porta.saida.PortaLivroRepositorio;
+import biblioteca.porta.saida.PortaUsuarioRepositorio;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class EmprestimoServico {
-    private EmprestimoRepositorio emprestimoRepositorio;
-    private LivroRepositorio livroRepositorio;
-    private UsuarioRepositorio usuarioRepositorio;
+public class EmprestimoServico implements PortaEmprestimo {
+    private PortaEmprestimoRepositorio emprestimoRepositorio;
+    private PortaLivroRepositorio livroRepositorio;
+    private PortaUsuarioRepositorio usuarioRepositorio;
     private Long proximoId = 1L;
 
-    public EmprestimoServico(EmprestimoRepositorio emprestimoRepositorio, 
-                            LivroRepositorio livroRepositorio, 
-                            UsuarioRepositorio usuarioRepositorio) {
+    public EmprestimoServico(PortaEmprestimoRepositorio emprestimoRepositorio, 
+                            PortaLivroRepositorio livroRepositorio, 
+                            PortaUsuarioRepositorio usuarioRepositorio) {
         this.emprestimoRepositorio = emprestimoRepositorio;
         this.livroRepositorio = livroRepositorio;
         this.usuarioRepositorio = usuarioRepositorio;

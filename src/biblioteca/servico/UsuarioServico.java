@@ -2,13 +2,13 @@ package biblioteca.servico;
 
 import biblioteca.dominio.Usuario;
 import biblioteca.dominio.SituacaoUsuario;
-import biblioteca.infraestrutura.adaptador.UsuarioRepositorio;
+import biblioteca.porta.saida.PortaUsuarioRepositorio;
 import java.util.List;
 
 public class UsuarioServico {
-    private UsuarioRepositorio usuarioRepositorio;
+    private PortaUsuarioRepositorio usuarioRepositorio;
 
-    public UsuarioServico(UsuarioRepositorio usuarioRepositorio) {
+    public UsuarioServico(PortaUsuarioRepositorio usuarioRepositorio) {
         this.usuarioRepositorio = usuarioRepositorio;
     }
 

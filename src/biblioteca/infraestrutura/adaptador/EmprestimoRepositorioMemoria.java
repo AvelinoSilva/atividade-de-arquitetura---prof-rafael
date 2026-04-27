@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EmprestimoRepositorio implements PortaEmprestimoRepositorio {
+public class EmprestimoRepositorioMemoria implements PortaEmprestimoRepositorio {
     private Map<Long, Emprestimo> emprestimos = new HashMap<>();
 
     @Override
