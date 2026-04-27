@@ -1,12 +1,12 @@
 package biblioteca.apresentacao;
 
 import biblioteca.dominio.Emprestimo;
+import biblioteca.dominio.evento.DevolucaoRegistradaEvento;
+import biblioteca.dominio.evento.EmprestimoRealizadoEvento;
 import biblioteca.infraestrutura.adaptador.*;
 import biblioteca.porta.entrada.PortaEmprestimo;
 import biblioteca.porta.saida.*;
-import biblioteca.servico.LivroServico;
-import biblioteca.servico.UsuarioServico;
-import biblioteca.servico.EmprestimoServico;
+import biblioteca.servico.*;
 import java.util.List;
 
 public class Main {
@@ -23,6 +23,13 @@ public class Main {
 
         // Etapa 2: Arquitetura Hexagonal com adaptadores
         executarEtapa2();
+
+        System.out.println();
+        System.out.println("===================================================");
+        System.out.println();
+
+        // Etapa 3: Comunicação Assíncrona por Eventos
+        executarEtapa3();
     }
 
     private static void executarEtapa1() {
@@ -146,5 +153,75 @@ public class Main {
         
         PortaNotificacao notificacao = new NotificacaoConsole();
         notificacao.notificarAtraso(usuarioServico2.buscarUsuario(20L), emp2);
+    }
+
+    private static void executarEtapa3() {
+        System.out.println("--- ETAPA 3: COMUNICACAO ASSINCRONA POR EVENTOS ---");
+        System.out.println();
+
+        // Criando EventBus
+        EventBus eventBus = new EventBus();
+
+        // Criando repositórios
+        PortaLivroRepositorio livroRepositorio = new LivroRepositorioMemoria();
+        PortaUsuarioRepositorio usuarioRepositorio = new UsuarioRepositorioMemoria();
+        PortaEmprestimoRepositorio emprestimoRepositorio = new EmprestimoRepositorioMemoria();
+
+        // Criando serviços
+        LivroServico livroServico = new LivroServico(livroRepositorio);
+        UsuarioServico usuarioServico = new UsuarioServico(usuarioRepositorio);
+        EmprestimoServico emprestimoServico = new EmprestimoServico(emprestimoRepositorio,
+                                                                      livroRepositorio,
+                                                                      usuarioRepositorio,
+                                                                      eventBus);
+
+        // Criando handlers de eventos
+        ServicoDeNotificacao servicoNotificacao = new ServicoDeNotificacao(usuarioRepositorio, emprestimoRepositorio);
+        ServicoDeLog servicoLog = new ServicoDeLog();
+
+        // Registrando subscribers no EventBus
+        System.out.println("Registrando subscribers no EventBus...");
+        eventBus.assinar(EmprestimoRealizadoEvento.class, servicoNotificacao::consumirEmprestimoRealizado);
+        eventBus.assinar(EmprestimoRealizadoEvento.class, servicoLog::consumirEmprestimoRealizado);
+        eventBus.assinar(DevolucaoRegistradaEvento.class, servicoLog::consumirDevolucaoRegistrada);
+        System.out.println("ok 3 subscribers registrados");
+        System.out.println();
+
+        // Cadastrando dados
+        System.out.println("Cadastrando dados de teste...");
+        livroServico.cadastrarLivro(100L, "Algoritmos", "Cormen", "978-0262033848", 2);
+        livroServico.cadastrarLivro(101L, "Estruturas de Dados", "Knuth", "978-0321635778", 1);
+        usuarioServico.cadastrarUsuario(100L, "Carlos Oliveira", "carlos@email.com");
+        usuarioServico.cadastrarUsuario(101L, "Fernanda Costa", "fernanda@email.com");
+        System.out.println("ok Dados cadastrados");
+        System.out.println();
+
+        // Realizando empréstimos - vai gerar eventos
+        System.out.println("Realizando emprestimos (vai gerar eventos)...");
+        System.out.println();
+
+        Emprestimo emp1 = emprestimoServico.realizarEmprestimo(100L, 100L);
+        System.out.println("Emprestimo 1 criado: " + emp1.getId());
+        System.out.println();
+
+        Emprestimo emp2 = emprestimoServico.realizarEmprestimo(101L, 101L);
+        System.out.println("Emprestimo 2 criado: " + emp2.getId());
+        System.out.println();
+
+        // Registrando devoluções - vai gerar eventos
+        System.out.println("Registrando devolucoes (vai gerar eventos)...");
+        System.out.println();
+        emprestimoServico.registrarDevolucao(1L);
+        System.out.println("Devolucao 1 registrada");
+        System.out.println();
+
+        emprestimoServico.registrarDevolucao(2L);
+        System.out.println("Devolucao 2 registrada");
+        System.out.println();
+
+        // Verificando arquivo de log
+        System.out.println("Eventos foram registrados em arquivo biblioteca.log");
+        System.out.println("Desacoplamento: EmprestimoServico nao conhece ServicoDeNotificacao ou ServicoDeLog");
+        System.out.println("Toda comunicacao ocorre apenas via EventBus");
     }
 }
